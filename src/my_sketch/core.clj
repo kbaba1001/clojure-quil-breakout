@@ -27,6 +27,7 @@
     (when (< (:boll-x @a-state) 0)
       (var-set a-state (assoc @a-state :boll-dx +)))
     (when (> (:boll-y @a-state) (q/height))
+      ; TODO ゲームオーバーにする
       (var-set a-state (assoc @a-state :boll-dy -)))
     (when (< (:boll-y @a-state) 0)
       (var-set a-state (assoc @a-state :boll-dy +)))
