@@ -12,12 +12,14 @@
   {:boll-x (/ (q/width) 2)
    :boll-y (/ (q/height) 4)
    :boll-dx +
-   :boll-dy +})
+   :boll-dy +
+   :boll-sx 10
+   :boll-sy 10})
 
 (defn update-state [state]
   (with-local-vars [a-state state]
-    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) 10))
-    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) 10))
+    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) (:boll-sx @a-state)))
+    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) (:boll-sy @a-state)))
     (when (> (:boll-x @a-state) (q/width))
       (var-set a-state (assoc @a-state :boll-dx -)))
     (when (< (:boll-x @a-state) 0)
@@ -44,6 +46,12 @@
   ;   (q/ellipse x y 16 16)))
 
 
+(defn key-pressed [state event]
+  (condp = (:key event)
+    :left (update state :boll-sx inc)
+    :right (update state :boll-sx dec)
+    state))
+
 (q/defsketch my-sketch
   :title "You spin my circle right round"
   :size [500 500]
@@ -52,6 +60,7 @@
   ; update-state is called on each iteration before draw-state.
   :update update-state
   :draw draw-state
+  :key-pressed key-pressed
   :features [:keep-on-top]
   ; This sketch uses functional-mode middleware.
   ; Check quil wiki for more info about middlewares and particularly
