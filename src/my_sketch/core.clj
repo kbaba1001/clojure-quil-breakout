@@ -6,7 +6,6 @@
 ; * ボールをパッドで反射
 ; * ボールが底についたらゲームオーバー
 ; * スタートボタンでゲーム開始
-; * ブロックを表示
 ; * ブロックにボールが当たったらブロックを消す
 ; * ブロックが全て消えたらゲームクリア
 
@@ -46,7 +45,6 @@
     ; show pad
     (q/rect px py 60 10)
     ; show blocks
-    ; (q/rect 10 100 50 20)
     (doseq [[index show-block] (map-indexed vector (:blocks state))
             :let [x (+ (* 60 index) 110)]]
       (when (true? show-block)
