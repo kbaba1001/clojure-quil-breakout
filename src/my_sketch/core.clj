@@ -11,17 +11,14 @@
 ; * ブロックが全て消えたらゲームクリア
 
 (defn setup []
-  ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
-  ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :rgb)
-  ; setup function returns initial state. It contains
-  ; circle color and position.
   {:boll-x (/ (q/width) 2)
    :boll-y (/ (q/height) 4)
    :boll-dx +
    :boll-dy +
-   :pad-x (/ (q/width) 2)})
+   :pad-x (/ (q/width) 2)
+   :blocks (repeat 5 true)})
 
 (defn update-state [state]
   (with-local-vars [a-state state]
@@ -38,23 +35,22 @@
     @a-state))
 
 (defn draw-state [state]
-  ; Clear the sketch by filling it with light-grey color.
   (q/background 50)
-  ; Set circle color.
   (q/fill 255)
-  ; Calculate x and y coordinates of the circle.
   (let [bx (:boll-x state)
         by (:boll-y state)
         px (:pad-x state)
         py (- (q/height) 30)]
+    ; show boll
     (q/ellipse bx by 16 16)
-    (q/rect px py 60 10)))
-  ; (let [angle (:angle state)
-  ;       x (* 150 (q/cos angle))
-  ;       y (* 150 (q/sin angle))]
-  ;   ; Draw the circle.
-  ;   (q/ellipse x y 16 16)))
-
+    ; show pad
+    (q/rect px py 60 10)
+    ; show blocks
+    ; (q/rect 10 100 50 20)
+    (doseq [[index show-block] (map-indexed vector (:blocks state))
+            :let [x (+ (* 60 index) 110)]]
+      (when (true? show-block)
+        (q/rect x 100 50 20)))))
 
 (defn key-pressed [state event]
   (condp = (:key event)
@@ -67,16 +63,11 @@
     state))
 
 (q/defsketch my-sketch
-  :title "You spin my circle right round"
+  :title "breakout"
   :size [500 500]
-  ; setup function called only once, during sketch initialization.
   :setup setup
-  ; update-state is called on each iteration before draw-state.
   :update update-state
   :draw draw-state
   :key-pressed key-pressed
   :features [:keep-on-top]
-  ; This sketch uses functional-mode middleware.
-  ; Check quil wiki for more info about middlewares and particularly
-  ; fun-mode.
   :middleware [m/fun-mode])
