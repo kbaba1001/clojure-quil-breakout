@@ -3,7 +3,6 @@
             [quil.middleware :as m]))
 
 ; TODO
-; * ボールをパッドで反射
 ; * ボールが底についたらゲームオーバー
 ; * スタートボタンでゲーム開始
 ; * ブロックにボールが当たったらブロックを消す
@@ -21,8 +20,8 @@
 
 (defn update-state [state]
   (with-local-vars [a-state state]
-    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) 10))
-    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) 10))
+    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) 5))
+    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) 5))
     (when (> (:boll-x @a-state) (q/width))
       (var-set a-state (assoc @a-state :boll-dx -)))
     (when (< (:boll-x @a-state) 0)
@@ -31,6 +30,10 @@
       (var-set a-state (assoc @a-state :boll-dy -)))
     (when (< (:boll-y @a-state) 0)
       (var-set a-state (assoc @a-state :boll-dy +)))
+    (when (and (> (:boll-x @a-state) (:pad-x @a-state))
+               (< (+ (:boll-x @a-state) 16) (+ (:pad-x @a-state) 60))
+               (> (+ (:boll-y @a-state) 16) (- (q/height) 30)))
+      (var-set a-state (assoc @a-state :boll-dy -)))
     @a-state))
 
 (defn draw-state [state]
