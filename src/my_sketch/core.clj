@@ -2,6 +2,14 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
+; TODO
+; * ボールをパッドで反射
+; * ボールが底についたらゲームオーバー
+; * スタートボタンでゲーム開始
+; * ブロックを表示
+; * ブロックにボールが当たったらブロックを消す
+; * ブロックが全て消えたらゲームクリア
+
 (defn setup []
   ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
@@ -13,14 +21,12 @@
    :boll-y (/ (q/height) 4)
    :boll-dx +
    :boll-dy +
-   :boll-sx 10
-   :boll-sy 10
    :pad-x (/ (q/width) 2)})
 
 (defn update-state [state]
   (with-local-vars [a-state state]
-    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) (:boll-sx @a-state)))
-    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) (:boll-sy @a-state)))
+    (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) 10))
+    (var-set a-state (update @a-state :boll-y (:boll-dy @a-state) 10))
     (when (> (:boll-x @a-state) (q/width))
       (var-set a-state (assoc @a-state :boll-dx -)))
     (when (< (:boll-x @a-state) 0)
