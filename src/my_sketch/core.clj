@@ -14,7 +14,8 @@
    :boll-dx +
    :boll-dy +
    :boll-sx 10
-   :boll-sy 10})
+   :boll-sy 10
+   :pad-x (/ (q/width) 2)})
 
 (defn update-state [state]
   (with-local-vars [a-state state]
@@ -37,8 +38,11 @@
   (q/fill 255)
   ; Calculate x and y coordinates of the circle.
   (let [bx (:boll-x state)
-        by (:boll-y state)]
-    (q/ellipse bx by 16 16)))
+        by (:boll-y state)
+        px (:pad-x state)
+        py (- (q/height) 30)]
+    (q/ellipse bx by 16 16)
+    (q/rect px py 60 10)))
   ; (let [angle (:angle state)
   ;       x (* 150 (q/cos angle))
   ;       y (* 150 (q/sin angle))]
@@ -48,8 +52,12 @@
 
 (defn key-pressed [state event]
   (condp = (:key event)
-    :left (update state :boll-sx inc)
-    :right (update state :boll-sx dec)
+    :left (if (> (:pad-x state) 0)
+            (update state :pad-x - 10)
+            state)
+    :right (if (< (+ (:pad-x state) 60) (q/width))
+             (update state :pad-x + 10)
+             state)
     state))
 
 (q/defsketch my-sketch
