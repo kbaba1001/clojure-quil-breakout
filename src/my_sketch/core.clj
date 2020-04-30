@@ -2,23 +2,20 @@
   (:require [quil.core :as q]
             [quil.middleware :as m]))
 
-; TODO
-; * ブロックにボールが当たったらブロックを消す
-; * ブロックが全て消えたらゲームクリア
-
 (defn setup []
   (q/frame-rate 30)
   (q/color-mode :rgb)
   {:gameover false
+   :gamefinish false
    :boll-x (/ (q/width) 2)
    :boll-y (/ (q/height) 2)
    :boll-dx +
    :boll-dy +
    :pad-x (/ (q/width) 2)
-   :blocks (repeat 5 true)})
+   :blocks {0 true 1 true 2 true 3 true 4 true}})
 
 (defn update-state [state]
-  (if (:gameover state)
+  (if (or (:gameover state) (:gamefinish state))
     state
     (with-local-vars [a-state state]
       (var-set a-state (update @a-state :boll-x (:boll-dx @a-state) 5))
@@ -35,22 +32,23 @@
                  (< (+ (:boll-x @a-state) 16) (+ (:pad-x @a-state) 60))
                  (> (+ (:boll-y @a-state) 16) (- (q/height) 30)))
         (var-set a-state (assoc @a-state :boll-dy -)))
-
-      ; (doseq [[index show-block] (map-indexed vector (:blocks state))
-      ;         :let [x (+ (* 60 index) 110)]]
-      ;   (when (true? show-block)
-      ;     (q/rect x 100 50 20)))))
-      (doseq [[index block] (map-indexed vector (:blocks @a-state))
+      (doseq [[index block] (map identity (:blocks @a-state))
               :let [block-left (+ (* 60 index) 110)
                     block-right (+ block-left 50)
                     block-top 100
-                    block-bottom 120]]
-        (when (and (> (:boll-x @a-state) block-left)
-                   (< (+ (:boll-y @a-state) 16)  block-top))))
-
+                    block-bottom 120
+                    boll-xc (+ (:boll-x @a-state) 8)
+                    boll-yc (+ (:boll-y @a-state) 8)]]
+        (when (and block
+                   (> boll-xc block-left)
+                   (< boll-xc block-right)
+                   (> boll-yc block-top)
+                   (< boll-yc block-bottom))
+          (var-set a-state (assoc-in @a-state [:blocks index] false))
+          (var-set a-state (assoc @a-state :boll-dy (if (= (:boll-dy @a-state) +) - +)))))
+      (when (every? false? (vals (:blocks @a-state)))
+        (var-set a-state (assoc @a-state :gamefinish true)))
       @a-state)))
-
-
 
 (defn draw-state [state]
   (q/background 50)
@@ -58,6 +56,9 @@
   (when (:gameover state)
     (q/text-size 30)
     (q/text "GAME OVER" 160 (/ (q/height) 2)))
+  (when (:gamefinish state)
+    (q/text-size 30)
+    (q/text "FINISH!!" 160 (/ (q/height) 2)))
   (let [bx (:boll-x state)
         by (:boll-y state)
         px (:pad-x state)
@@ -67,7 +68,7 @@
     ; show pad
     (q/rect px py 60 10)
     ; show blocks
-    (doseq [[index show-block] (map-indexed vector (:blocks state))
+    (doseq [[index show-block] (map identity (:blocks state))
             :let [x (+ (* 60 index) 110)]]
       (when (true? show-block)
         (q/rect x 100 50 20)))))
